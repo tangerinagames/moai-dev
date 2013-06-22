@@ -45,7 +45,7 @@ typedef void ( *AKUOpenWindowFunc )				( const char* title, int width, int heigh
 typedef void ( *AKUSetSimStepFunc )				( double step );
 typedef const char* ( *AKUGetJoystickNameFunc )				( int number );
 typedef int ( *AKUGetJoystickButtonFunc )				( int number, int button );
-// typedef int ( *AKUGetJoystickButtonFunc )				( int number );
+typedef float ( *AKUGetJoystickAxisFunc )				( int number, int axis );
 typedef int ( *AKUIsJoystickConnectedFunc )				( int number );
 
 
@@ -56,6 +56,7 @@ AKU_DECLARE_FUNC_ACCESSORS ( OpenWindow )
 AKU_DECLARE_FUNC_ACCESSORS ( SetSimStep )
 AKU_DECLARE_FUNC_ACCESSORS ( GetJoystickName )
 AKU_DECLARE_FUNC_ACCESSORS ( GetJoystickButton )
+AKU_DECLARE_FUNC_ACCESSORS ( GetJoystickAxis )
 AKU_DECLARE_FUNC_ACCESSORS ( IsJoystickConnected )
 
 struct lua_State;

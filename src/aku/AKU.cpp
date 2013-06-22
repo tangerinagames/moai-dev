@@ -37,6 +37,7 @@ struct AKUContext {
 	AKU_DEFINE_FUNC_CONTEXT ( SetSimStep );
 	AKU_DEFINE_FUNC_CONTEXT ( GetJoystickName );
 	AKU_DEFINE_FUNC_CONTEXT ( GetJoystickButton );
+	AKU_DEFINE_FUNC_CONTEXT ( GetJoystickAxis );
 	AKU_DEFINE_FUNC_CONTEXT ( IsJoystickConnected );
 
 	MOAIGlobals*		mGlobals;
@@ -96,6 +97,9 @@ AKU_DEFINE_FUNC_ACCESSORS ( GetJoystickName, _GetJoystickName )
 
 static int _GetJoystickButton ( int number, int button ) { return false; }
 AKU_DEFINE_FUNC_ACCESSORS ( GetJoystickButton, _GetJoystickButton )
+
+static float _GetJoystickAxis ( int number, int axis ) { return 0.0; }
+AKU_DEFINE_FUNC_ACCESSORS ( GetJoystickAxis, _GetJoystickAxis )
 
 static int _IsJoystickConnected ( int number ) { return false; }
 AKU_DEFINE_FUNC_ACCESSORS ( IsJoystickConnected, _IsJoystickConnected )

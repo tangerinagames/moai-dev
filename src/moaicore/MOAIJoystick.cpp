@@ -10,7 +10,13 @@
 
 //----------------------------------------------------------------//
 int MOAIJoystick::_getAxisValue(lua_State* L) {
-	UNUSED(L);
+	MOAI_LUA_SETUP(MOAIJoystick, "U")
+
+	AKUGetJoystickAxisFunc getJoystickAxis = AKUGetFunc_GetJoystickAxis();
+	if (getJoystickAxis) {
+		lua_pushnumber(state, getJoystickAxis(self->number, state.GetValue<int>(2, 0)));
+		return 1;
+	}
 
 	return 0;
 }
