@@ -164,6 +164,7 @@
 #include <moaicore/MOAIWheelSensor.h>
 #include <moaicore/MOAIXmlParser.h>
 #include <moaicore/MOAIXmlWriter.h>
+#include <moaicore/MOAIJoystick.h>
 
 #if USE_BOX2D
 	#include <moaicore/MOAIBox2DArbiter.h>

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------//
-// Copyright (c) 2010-2011 Zipline Games, Inc. 
-// All Rights Reserved. 
+// Copyright (c) 2010-2011 Zipline Games, Inc.
+// All Rights Reserved.
 // http://getmoai.com
 //----------------------------------------------------------------//
 
@@ -43,12 +43,20 @@ typedef void ( *AKUErrorTracebackFunc )         ( const char* message, struct lu
 typedef void ( *AKUExitFullscreenModeFunc )		();
 typedef void ( *AKUOpenWindowFunc )				( const char* title, int width, int height );
 typedef void ( *AKUSetSimStepFunc )				( double step );
+typedef const char* ( *AKUGetJoystickNameFunc )				( int number );
+typedef int ( *AKUGetJoystickButtonFunc )				( int number, int button );
+// typedef int ( *AKUGetJoystickButtonFunc )				( int number );
+typedef int ( *AKUIsJoystickConnectedFunc )				( int number );
+
 
 AKU_DECLARE_FUNC_ACCESSORS ( EnterFullscreenMode )
 AKU_DECLARE_FUNC_ACCESSORS ( ErrorTraceback )
 AKU_DECLARE_FUNC_ACCESSORS ( ExitFullscreenMode )
 AKU_DECLARE_FUNC_ACCESSORS ( OpenWindow )
 AKU_DECLARE_FUNC_ACCESSORS ( SetSimStep )
+AKU_DECLARE_FUNC_ACCESSORS ( GetJoystickName )
+AKU_DECLARE_FUNC_ACCESSORS ( GetJoystickButton )
+AKU_DECLARE_FUNC_ACCESSORS ( IsJoystickConnected )
 
 struct lua_State;
 typedef int AKUContextID;

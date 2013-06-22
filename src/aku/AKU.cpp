@@ -28,14 +28,17 @@ static void _cleanup () {
 // AKUContext
 //================================================================//
 struct AKUContext {
-	
+
 	//----------------------------------------------------------------//
 	AKU_DEFINE_FUNC_CONTEXT ( EnterFullscreenMode );
 	AKU_DEFINE_FUNC_CONTEXT ( ErrorTraceback );
 	AKU_DEFINE_FUNC_CONTEXT ( ExitFullscreenMode );
 	AKU_DEFINE_FUNC_CONTEXT ( OpenWindow );
 	AKU_DEFINE_FUNC_CONTEXT ( SetSimStep );
-	
+	AKU_DEFINE_FUNC_CONTEXT ( GetJoystickName );
+	AKU_DEFINE_FUNC_CONTEXT ( GetJoystickButton );
+	AKU_DEFINE_FUNC_CONTEXT ( IsJoystickConnected );
+
 	MOAIGlobals*		mGlobals;
 	void*				mUserdata;
 };
@@ -81,12 +84,21 @@ AKU_DEFINE_FUNC_ACCESSORS ( SetSimStep, _SetSimStep )
 
 //----------------------------------------------------------------//
 static void _deleteContext ( AKUContext* context ) {
-	
+
 	if ( context->mGlobals ) {
 		MOAIGlobalsMgr::Delete ( context->mGlobals );
 	}
 	free ( context );
 }
+
+static const char* _GetJoystickName ( int number ) { return "Not supported"; }
+AKU_DEFINE_FUNC_ACCESSORS ( GetJoystickName, _GetJoystickName )
+
+static int _GetJoystickButton ( int number, int button ) { return false; }
+AKU_DEFINE_FUNC_ACCESSORS ( GetJoystickButton, _GetJoystickButton )
+
+static int _IsJoystickConnected ( int number ) { return false; }
+AKU_DEFINE_FUNC_ACCESSORS ( IsJoystickConnected, _IsJoystickConnected )
 
 //================================================================//
 // AKU
@@ -97,7 +109,7 @@ void AKUClearMemPool () {
 
 	ZL_TLSF_POOL* pool = zl_tlsf_get_pool ();
 	zl_tlsf_set_pool ( 0 );
-	
+
 	if ( pool ) {
 		zl_tlsf_destroy_pool ( pool );
 	}
@@ -105,7 +117,7 @@ void AKUClearMemPool () {
 
 //----------------------------------------------------------------//
 AKUContextID AKUCreateContext () {
-	
+
 	if ( gSysInit ) {
 		moaicore::SystemInit ();
 		gContextMap = new ContextMap;
@@ -114,12 +126,12 @@ AKUContextID AKUCreateContext () {
 	}
 
 	gContext = ( AKUContext* )calloc ( 1, sizeof ( AKUContext ));
-	
+
 	gContextID = ++gContextIDCounter;
 	( *gContextMap )[ gContextID ] = gContext;
-	
+
 	gContext->mUserdata = 0;
-	
+
 	gContext->mGlobals = MOAIGlobalsMgr::Create ();
 	moaicore::InitGlobals ( gContext->mGlobals );
 
@@ -131,13 +143,13 @@ AKUContextID AKUCreateContext () {
 
 //----------------------------------------------------------------//
 void AKUDeleteContext ( AKUContextID contextID ) {
-	
+
 	AKUSetContext ( contextID );
 	if ( !gContext ) return;
-	
+
 	_deleteContext ( gContext );
 	gContextMap->erase ( contextID );
-	
+
 	AKUSetContext ( 0 );
 }
 
@@ -229,11 +241,11 @@ void AKUFinalize () {
 			AKUContext* context = contextMapIt->second;
 			_deleteContext ( context );
 		}
-		
+
 		delete gContextMap;
 		gContextMap = 0;
 	}
-	
+
 	if ( !gSysInit ) {
 		moaicore::SystemFinalize ();
 		gSysInit = true;
@@ -242,13 +254,13 @@ void AKUFinalize () {
 
 //----------------------------------------------------------------//
 AKUContextID AKUGetContext () {
-	
+
 	return gContextID;
 }
 
 //----------------------------------------------------------------//
 void* AKUGetUserdata () {
-	
+
 	if ( gContext ) {
 		return gContext->mUserdata;
 	}
@@ -342,10 +354,10 @@ void AKURunScript ( const char* filename ) {
 
 	int status;
 	MOAILuaStateHandle state = MOAILuaRuntime::Get ().State ();
-	
+
 	status = luaL_loadfile ( state, filename );
 	if ( state.PrintErrors ( USLog::CONSOLE, status )) return;
-	
+
 	state.DebugCall ( 0, 0 );
 }
 
@@ -354,21 +366,21 @@ void AKURunString ( const char* script ) {
 
 	int status;
 	MOAILuaStateHandle state = MOAILuaRuntime::Get ().State ();
-	
+
 	status = luaL_loadstring ( state, script );
 	if ( state.PrintErrors ( USLog::CONSOLE, status )) return;
-	
+
 	state.DebugCall ( 0, 0 );
 }
 
 //----------------------------------------------------------------//
 void AKUSetContext ( AKUContextID contextID ) {
-	
+
 	if ( gContextID != contextID ) {
-		
+
 		gContextID = contextID;
 		gContext = gContextMap->value_for_key ( contextID );
-		
+
 		if ( gContext ) {
 			MOAIGlobalsMgr::Set ( gContext->mGlobals );
 		}
@@ -459,7 +471,7 @@ void AKUSetOrientation ( int orientation ) {
 	MOAIGfxDevice::Get ().GetDefaultBuffer ()->SetLandscape ( orientation == AKU_ORIENTATION_LANDSCAPE );
 }
 
-//----------------------------------------------------------------//	
+//----------------------------------------------------------------//
 void AKUSetScreenDpi ( int dpi ) {
 
 	MOAIEnvironment::Get ().SetValue ( MOAI_ENV_screenDpi, dpi );
@@ -474,16 +486,16 @@ void AKUSetScreenSize ( int width, int height ) {
 
 //----------------------------------------------------------------//
 void AKUSetViewSize ( int width, int height ) {
-	
+
 	MOAIGfxDevice& device = MOAIGfxDevice::Get ();
-	
+
 	u32 currentWidth = device.GetWidth ();
 	u32 currentHeight = device.GetHeight ();
-	
+
 	if (( currentWidth != ( u32 )width ) || ( currentHeight != ( u32 )height )) {
-	
+
 		MOAIGfxDevice::Get ().SetBufferSize ( width, height );
-		
+
 		MOAILuaStateHandle state = MOAILuaRuntime::Get ().State ();
 		if ( device.PushListener ( MOAIGfxDevice::EVENT_RESIZE, state )) {
 			lua_pushnumber ( state, width );
